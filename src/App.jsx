@@ -3,7 +3,7 @@ import io from 'socket.io-client'
 import axios from 'axios'
 import Editor from '@monaco-editor/react';
 
-const socket = io.connect("http://localhost:3066")
+const socket = io.connect("http://localhost:3033")
 
 function App() {
   const [groupId, setGroupId] = useState('')
@@ -11,18 +11,41 @@ function App() {
   const [text, setText] = useState('')
   const [display, setDisplay] = useState([])
   const [isDashboard, setDashboard] = useState(false)
-  const [selectedUserId, setSelectedUserId] = useState('')
+  const [userId, setUserId] = useState('')
 
   function joinGroupFun() {
     socket.emit('join_group', { groupId, name })
+    // localStorage.setItem("localUser", JSON.stringify({ userName: name, groupId: groupId }))
   }
 
   useEffect(() => {
-    socket.emit("text_input", { groupId, text })
+    const localUser = JSON.parse(localStorage.getItem('localUser'))
+    console.log(localUser)
+
+    if (localUser) {
+      axios.post('http://localhost:3033/api/messages', localUser)
+        .then((res) => {
+          console.log(res.data)
+          setText(res.data.msg)
+          setName(res.data.userName)
+          setGroupId(res.data.groupId)
+          setUserId(res.data.userId)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    } else {
+      console.log("username not in DB")
+    }
+
+  }, [])
+
+  useEffect(() => {
+    socket.emit("text_input", { groupId, text, userId })
   }, [text])
 
   useEffect(() => {
-    axios.get('http://localhost:3066/api/messages')
+    axios.get('http://localhost:3033/api/messages')
       .then((res) => {
         setDisplay(res.data)
       })
@@ -33,13 +56,17 @@ function App() {
 
   useEffect(() => {
     socket.on("display_data", (data) => {
-      axios.get('http://localhost:3066/api/messages')
+      axios.get('http://localhost:3033/api/messages')
         .then((res) => {
           setDisplay(res.data)
         })
         .catch((err) => {
           console.log(err)
         })
+    })
+    socket.on("SAVE_USER", (data) => {
+      localStorage.setItem("localUser", JSON.stringify({ userId: data.userId }))
+      setUserId(data.userId)
     })
   }, [socket.on])
 
@@ -74,13 +101,14 @@ function App() {
           </select> <br />
 
           {selectedUserId && <Editor height="40vh" defaultLanguage="javascript" value={display.find((ele) => ele.userId == selectedUserId).msg} />} */}
-
-          {display.filter((ele) => ele.groupId == groupId).map((ele) => {
-            return (<div key={ele.userId}>
-              <h3>{ele.userName}</h3>
-              <Editor height="40vh" defaultLanguage="javascript" value={ele.msg} />
-            </div>)
-          })}
+          <div>
+            {display.filter((ele) => ele.groupId == groupId).map((ele) => {
+              return (<div key={ele.userId}>
+                <h3>{ele.userName}</h3>
+                <Editor height="40vh" defaultLanguage="javascript" value={ele.msg} />
+              </div>)
+            })}
+          </div>
         </div>}
     </>
   )
