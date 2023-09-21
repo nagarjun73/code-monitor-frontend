@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import io from 'socket.io-client'
 import axios from 'axios'
 import Editor from '@monaco-editor/react';
+import Dashboard from './components/dashboard'
 
 const socket = io.connect("http://localhost:3033")
 
@@ -12,10 +13,10 @@ function App() {
   const [display, setDisplay] = useState([])
   const [isDashboard, setDashboard] = useState(false)
   const [userId, setUserId] = useState('')
+  const [keyCounter, setKeyCounter] = useState(0)
 
   function joinGroupFun() {
     socket.emit('join_group', { groupId, name })
-    // localStorage.setItem("localUser", JSON.stringify({ userName: name, groupId: groupId }))
   }
 
   useEffect(() => {
@@ -34,14 +35,15 @@ function App() {
         .catch((err) => {
           console.log(err)
         })
-    } else {
-      console.log("username not in DB")
     }
-
   }, [])
 
   useEffect(() => {
-    socket.emit("text_input", { groupId, text, userId })
+    setKeyCounter(keyCounter + 1)
+    if (keyCounter % 5 == 0) {
+      console.log(text)
+      socket.emit("text_input", { groupId, text, userId })
+    }
   }, [text])
 
   useEffect(() => {
@@ -91,25 +93,8 @@ function App() {
           {/* <textarea value={text} onChange={(e) => setText(e.target.value)}></textarea><br /> */}
         </div>
         :
-        <div>
-          <h1>messages</h1>
-          {/* <select onChange={(e) => setSelectedUserId(e.target.value)}>
-            <option value="">select</option>
-            {display.filter((ele) => ele.groupId == groupId).map((ele, i) => {
-              return <option key={i} value={ele.userId}>{ele.userName}</option>
-            })}
-          </select> <br />
-
-          {selectedUserId && <Editor height="40vh" defaultLanguage="javascript" value={display.find((ele) => ele.userId == selectedUserId).msg} />} */}
-          <div>
-            {display.filter((ele) => ele.groupId == groupId).map((ele) => {
-              return (<div key={ele.userId}>
-                <h3>{ele.userName}</h3>
-                <Editor height="40vh" defaultLanguage="javascript" value={ele.msg} />
-              </div>)
-            })}
-          </div>
-        </div>}
+        <Dashboard display={display} groupId={groupId} />
+      }
     </>
   )
 }
