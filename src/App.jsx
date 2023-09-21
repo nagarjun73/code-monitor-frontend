@@ -16,6 +16,7 @@ function App() {
   const [isDashboard, setDashboard] = useState(false)
   const [userId, setUserId] = useState('')
   const [keyCounter, setKeyCounter] = useState(0)
+  const [welcomeMsg, setWelcomeMsg] = useState('')
 
   function joinGroupFun() {
     socket.emit('join_group', { groupId, name })
@@ -33,6 +34,7 @@ function App() {
           setName(res.data.userName)
           setGroupId(res.data.groupId)
           setUserId(res.data.userId)
+          setWelcomeMsg(res.data.userId)
         })
         .catch((err) => {
           console.log(err)
@@ -71,6 +73,7 @@ function App() {
     socket.on("SAVE_USER", (data) => {
       localStorage.setItem("localUser", JSON.stringify({ userId: data.userId }))
       setUserId(data.userId)
+      setWelcomeMsg(res.data.userId)
     })
   }, [socket.on])
 
@@ -81,7 +84,7 @@ function App() {
   return (
     <>
       <h1>GroupChat</h1>
-
+      {welcomeMsg && <h3 style={{ color: 'green' }}>Welcome {welcomeMsg}</h3>}
       <button onClick={dashboardHandle}>Dashboard</button>
       {!isDashboard ?
         <div>
