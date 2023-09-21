@@ -20,6 +20,7 @@ function App() {
 
   function joinGroupFun() {
     socket.emit('join_group', { groupId, name })
+    setWelcomeMsg(name)
   }
 
   useEffect(() => {
@@ -34,7 +35,7 @@ function App() {
           setName(res.data.userName)
           setGroupId(res.data.groupId)
           setUserId(res.data.userId)
-          setWelcomeMsg(res.data.userId)
+          setWelcomeMsg(res.data.userName)
         })
         .catch((err) => {
           console.log(err)
@@ -73,7 +74,6 @@ function App() {
     socket.on("SAVE_USER", (data) => {
       localStorage.setItem("localUser", JSON.stringify({ userId: data.userId }))
       setUserId(data.userId)
-      setWelcomeMsg(res.data.userId)
     })
   }, [socket.on])
 
