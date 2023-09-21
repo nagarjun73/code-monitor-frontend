@@ -4,7 +4,9 @@ import axios from 'axios'
 import Editor from '@monaco-editor/react';
 import Dashboard from './components/dashboard'
 
-const socket = io.connect("http://localhost:3033")
+const url = import.meta.env.VITE_BACKEND_SERVER_URL
+
+const socket = io.connect(url)
 
 function App() {
   const [groupId, setGroupId] = useState('')
@@ -24,7 +26,7 @@ function App() {
     console.log(localUser)
 
     if (localUser) {
-      axios.post('http://localhost:3033/api/messages', localUser)
+      axios.post(`${url}/api/messages`, localUser)
         .then((res) => {
           console.log(res.data)
           setText(res.data.msg)
@@ -47,7 +49,7 @@ function App() {
   }, [text])
 
   useEffect(() => {
-    axios.get('http://localhost:3033/api/messages')
+    axios.get(`${url}/api/messages`)
       .then((res) => {
         setDisplay(res.data)
       })
@@ -58,7 +60,7 @@ function App() {
 
   useEffect(() => {
     socket.on("display_data", (data) => {
-      axios.get('http://localhost:3033/api/messages')
+      axios.get(`${url}/api/messages`)
         .then((res) => {
           setDisplay(res.data)
         })
