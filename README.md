@@ -1,8 +1,3 @@
-# React + Vite
+**Code Monitor App**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Developed a full-stack Code Monitor App designed for hosts to efficiently monitor participants' code. This app provides a centralized platform for hosts to oversee and evaluate participants' coding activities. I have used socket.io and monaco-editor for real-time code monitoring, the ability to view and assess code summaries.
